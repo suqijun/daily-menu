@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files（保留 .env.example 供对照；真实密钥只放 .env.local）
 .env*
+!.env.example
 
 # vercel
 .vercel
