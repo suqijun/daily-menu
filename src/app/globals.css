@@ -11,6 +11,12 @@
   --border: #fed7aa;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 160ms;
+  --duration-ui: 200ms;
+  --duration-sheet: 320ms;
 }
 
 @theme inline {
@@ -39,4 +45,45 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-press: 0ms;
+    --duration-ui: 0ms;
+    --duration-sheet: 0ms;
+  }
+}
+
+.pressable {
+  transition: transform var(--duration-press) var(--ease-out);
+}
+
+.pressable:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pressable:active {
+    transform: none;
+  }
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.menu-state-enter {
+  animation: menuFadeIn var(--duration-ui) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-state-enter {
+    animation: none;
+  }
 }

@@ -54,6 +54,14 @@ export function MenuPage() {
     [content, menu?.content],
   );
 
+  const menuView = useMemo(() => {
+    if (generating) return "generating" as const;
+    if (loading && !menu) return "loading" as const;
+    if (!hasMenu && !loading) return "empty" as const;
+    if (hasMenu) return "editor" as const;
+    return "loading" as const;
+  }, [generating, loading, menu, hasMenu]);
+
   async function handleSave() {
     if (!content.trim()) {
       showToast("菜单内容不能为空");
@@ -154,7 +162,7 @@ export function MenuPage() {
           <button
             type="button"
             onClick={exitEdit}
-            className="h-9 rounded-full bg-[var(--primary)] px-4 text-sm font-semibold text-white active:scale-[0.98]"
+            className="pressable h-9 rounded-full bg-[var(--primary)] px-4 text-sm font-semibold text-white"
           >
             完成
           </button>
@@ -174,7 +182,7 @@ export function MenuPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <header className="shrink-0 px-4 pb-3 pt-4">
+      <header className="shrink-0 border-b border-[var(--border)]/60 px-4 pb-3.5 pt-4">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-xl font-bold tracking-tight">菜单</h1>
@@ -210,12 +218,20 @@ export function MenuPage() {
           </p>
         ) : null}
 
-        {loading && !menu && !generating ? (
-          <p className="py-14 text-center text-[var(--muted)]">加载中…</p>
+        {menuView === "loading" ? (
+          <p
+            key="loading"
+            className="menu-state-enter py-14 text-center text-[var(--muted)]"
+          >
+            加载中…
+          </p>
         ) : null}
 
-        {generating ? (
-          <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] px-6 text-center">
+        {menuView === "generating" ? (
+          <div
+            key="generating"
+            className="menu-state-enter flex min-h-0 flex-1 flex-col items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] px-6 text-center"
+          >
             <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-orange-200 border-t-[var(--primary)]" />
             <p className="mt-4 text-base font-medium">正在为你搭配菜单…</p>
             <p className="mt-1.5 text-sm text-[var(--muted)]">
@@ -224,8 +240,11 @@ export function MenuPage() {
           </div>
         ) : null}
 
-        {!loading && !hasMenu && !generating ? (
-          <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-2 text-center">
+        {menuView === "empty" ? (
+          <div
+            key="empty"
+            className="menu-state-enter flex min-h-0 flex-1 flex-col items-center justify-center px-2 text-center"
+          >
             <p className="text-3xl">🍽</p>
             <p className="mt-3 text-sm text-[var(--muted)]">
               冰箱{" "}
@@ -244,15 +263,15 @@ export function MenuPage() {
             <button
               type="button"
               onClick={handleFirstGenerate}
-              className="mt-6 h-12 w-full max-w-xs rounded-2xl bg-[var(--primary)] text-base font-semibold text-white shadow-md shadow-orange-200/80 active:scale-[0.99]"
+              className="pressable mt-6 h-12 w-full max-w-xs rounded-2xl bg-[var(--primary)] text-base font-semibold text-white shadow-md shadow-orange-200/80"
             >
               ✨ AI 生成今日菜单
             </button>
           </div>
         ) : null}
 
-        {hasMenu && !generating ? (
-          <>
+        {menuView === "editor" ? (
+          <div key="editor" className="menu-state-enter flex min-h-0 flex-1 flex-col gap-4">
             <div className="min-h-0 flex-1">
               <textarea
                 value={content}
@@ -268,19 +287,19 @@ export function MenuPage() {
                 type="button"
                 disabled={saving || !isDirty}
                 onClick={() => void handleSave()}
-                className="h-11 rounded-xl bg-stone-900 text-sm font-semibold text-white disabled:opacity-40 active:scale-[0.99]"
+                className="pressable h-11 rounded-xl bg-stone-900 text-sm font-semibold text-white disabled:opacity-40"
               >
                 {saving ? "保存中…" : isDirty ? "保存修改" : "已保存"}
               </button>
               <button
                 type="button"
                 onClick={() => void handleCopy()}
-                className="h-11 rounded-xl border border-[var(--border)] bg-[var(--card)] text-sm font-semibold active:scale-[0.99]"
+                className="pressable h-11 rounded-xl border border-[var(--border)] bg-[var(--card)] text-sm font-semibold"
               >
                 复制菜单
               </button>
             </div>
-          </>
+          </div>
         ) : null}
       </div>
 

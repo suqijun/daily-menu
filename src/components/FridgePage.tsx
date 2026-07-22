@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BottomSheet } from "@/components/BottomSheet";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useToast } from "@/components/Toast";
 import { useIngredients } from "@/hooks/useIngredients";
@@ -13,7 +14,6 @@ function parseIngredientLines(raw: string): Array<{ name: string; quantity?: str
     .filter(Boolean);
 
   return lines.map((line) => {
-    // 「番茄 2个」「牛奶 500g」「鸡蛋」
     const m = line.match(/^(.+?)\s+(\S+)$/);
     if (m && /[\d半一二两三四五六七八九十]/.test(m[2])) {
       return { name: m[1].trim(), quantity: m[2].trim() };
@@ -91,7 +91,7 @@ export function FridgePage() {
               <button
                 type="button"
                 onClick={openSheet}
-                className="inline-flex h-9 items-center gap-1 rounded-full bg-[var(--primary)] px-3.5 text-sm font-semibold text-white shadow-sm shadow-orange-200 active:scale-[0.98]"
+                className="pressable inline-flex h-9 items-center gap-1 rounded-full bg-[var(--primary)] px-3.5 text-sm font-semibold text-white shadow-sm shadow-orange-200"
               >
                 <span className="text-base leading-none">+</span>
                 添加
@@ -118,7 +118,7 @@ export function FridgePage() {
             <button
               type="button"
               onClick={openSheet}
-              className="mt-6 h-12 w-full max-w-xs rounded-2xl bg-[var(--primary)] text-base font-semibold text-white shadow-md shadow-orange-200/80 active:scale-[0.99]"
+              className="pressable mt-6 h-12 w-full max-w-xs rounded-2xl bg-[var(--primary)] text-base font-semibold text-white shadow-md shadow-orange-200/80"
             >
               + 添加食材
             </button>
@@ -166,18 +166,18 @@ export function FridgePage() {
                       ),
                     )
                   }
-                  className={`h-7 shrink-0 rounded-full px-2.5 text-xs font-semibold transition-colors active:scale-[0.98] ${
+                  className={`pressable h-7 shrink-0 rounded-full px-2.5 text-xs font-semibold transition-colors ${
                     item.urgent
                       ? "bg-[var(--urgent)] text-white ring-2 ring-orange-300"
                       : "border border-[var(--border)] bg-white text-[var(--muted)]"
                   }`}
                 >
-                  {item.urgent ? "尽快吃" : "尽快吃"}
+                  尽快吃
                 </button>
                 <button
                   type="button"
                   onClick={() => setDeleteId(item.id)}
-                  className="h-7 shrink-0 rounded-md px-1 text-xs text-red-500/80 active:bg-red-50"
+                  className="pressable h-7 shrink-0 rounded-md px-1 text-xs text-red-500/80 active:bg-red-50"
                   aria-label="删除"
                 >
                   删除
@@ -188,45 +188,40 @@ export function FridgePage() {
         )}
       </div>
 
-      {sheetOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40">
-          <div
-            className="mx-auto w-full max-w-lg rounded-t-3xl bg-[var(--card)] px-5 pt-5 shadow-2xl"
-            style={{ paddingBottom: "calc(1.25rem + var(--safe-bottom))" }}
-          >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-stone-200" />
-            <h2 className="text-base font-semibold">添加食材</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              支持批量：每行一个。也可写成「番茄 2个」
-            </p>
-            <textarea
-              autoFocus
-              value={bulkText}
-              onChange={(e) => setBulkText(e.target.value)}
-              rows={6}
-              placeholder={"番茄 2个\n鸡蛋 6个\n西兰花\n牛奶 1盒"}
-              className="mt-3 w-full resize-none rounded-2xl border border-stone-200 bg-[var(--bg)] p-3 text-base leading-relaxed outline-none focus:border-[var(--primary)]"
-            />
-            <div className="mt-4 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setSheetOpen(false)}
-                className="h-11 flex-1 rounded-xl border border-stone-200 text-sm font-medium"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                disabled={submitting}
-                onClick={() => void handleAdd()}
-                className="h-11 flex-1 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white disabled:opacity-60"
-              >
-                {submitting ? "添加中…" : "添加"}
-              </button>
-            </div>
+      <BottomSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title="添加食材"
+        description="支持批量：每行一个。也可写成「番茄 2个」"
+        footer={
+          <div className="mt-4 flex gap-3">
+            <button
+              type="button"
+              onClick={() => setSheetOpen(false)}
+              className="pressable h-11 flex-1 rounded-xl border border-[var(--border)] text-sm font-medium"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => void handleAdd()}
+              className="pressable h-11 flex-1 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {submitting ? "添加中…" : "添加"}
+            </button>
           </div>
-        </div>
-      ) : null}
+        }
+      >
+        <textarea
+          autoFocus
+          value={bulkText}
+          onChange={(e) => setBulkText(e.target.value)}
+          rows={6}
+          placeholder={"番茄 2个\n鸡蛋 6个\n西兰花\n牛奶 1盒"}
+          className="mt-3 w-full resize-none rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-3 text-base leading-relaxed outline-none focus:border-[var(--primary)]"
+        />
+      </BottomSheet>
 
       <ConfirmDialog
         open={Boolean(deleteId)}

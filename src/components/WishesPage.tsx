@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BottomSheet } from "@/components/BottomSheet";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useToast } from "@/components/Toast";
 import { useWishes } from "@/hooks/useWishes";
@@ -81,7 +82,7 @@ export function WishesPage() {
               <button
                 type="button"
                 onClick={openSheet}
-                className="inline-flex h-9 items-center gap-1 rounded-full bg-[var(--primary)] px-3.5 text-sm font-semibold text-white shadow-sm shadow-orange-200 active:scale-[0.98]"
+                className="pressable inline-flex h-9 items-center gap-1 rounded-full bg-[var(--primary)] px-3.5 text-sm font-semibold text-white shadow-sm shadow-orange-200"
               >
                 <span className="text-base leading-none">+</span>
                 添加
@@ -108,25 +109,26 @@ export function WishesPage() {
             <button
               type="button"
               onClick={openSheet}
-              className="mt-6 h-12 w-full max-w-xs rounded-2xl bg-[var(--primary)] text-base font-semibold text-white shadow-md shadow-orange-200/80 active:scale-[0.99]"
+              className="pressable mt-6 h-12 w-full max-w-xs rounded-2xl bg-[var(--primary)] text-base font-semibold text-white shadow-md shadow-orange-200/80"
             >
               + 想吃什么
             </button>
           </div>
         ) : (
-          <ul className="space-y-2.5">
+          <ul className="space-y-1.5">
             {items.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-3.5 shadow-sm"
+                className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 shadow-sm"
               >
-                <p className="min-w-0 flex-1 truncate text-base font-semibold">
+                <p className="min-w-0 flex-1 truncate text-[15px] font-semibold leading-snug">
                   {item.dish_name}
                 </p>
                 <button
                   type="button"
                   onClick={() => setDeleteId(item.id)}
-                  className="h-9 shrink-0 rounded-lg px-2.5 text-sm text-red-600 active:bg-red-50"
+                  className="pressable h-7 shrink-0 rounded-md px-1 text-xs text-red-500/80 active:bg-red-50"
+                  aria-label="删除"
                 >
                   删除
                 </button>
@@ -136,45 +138,40 @@ export function WishesPage() {
         )}
       </div>
 
-      {sheetOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40">
-          <div
-            className="mx-auto w-full max-w-lg rounded-t-3xl bg-[var(--card)] px-5 pt-5 shadow-2xl"
-            style={{ paddingBottom: "calc(1.25rem + var(--safe-bottom))" }}
-          >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-stone-200" />
-            <h2 className="text-base font-semibold">想吃什么</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              支持批量：每行一道，也可用逗号分隔
-            </p>
-            <textarea
-              autoFocus
-              value={bulkText}
-              onChange={(e) => setBulkText(e.target.value)}
-              rows={6}
-              placeholder={"番茄炒蛋\n想喝热汤\n蒜蓉西兰花"}
-              className="mt-3 w-full resize-none rounded-2xl border border-stone-200 bg-[var(--bg)] p-3 text-base leading-relaxed outline-none focus:border-[var(--primary)]"
-            />
-            <div className="mt-4 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setSheetOpen(false)}
-                className="h-11 flex-1 rounded-xl border border-stone-200 text-sm font-medium"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                disabled={submitting}
-                onClick={() => void handleAdd()}
-                className="h-11 flex-1 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white disabled:opacity-60"
-              >
-                {submitting ? "添加中…" : "添加"}
-              </button>
-            </div>
+      <BottomSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title="想吃什么"
+        description="支持批量：每行一道，也可用逗号分隔"
+        footer={
+          <div className="mt-4 flex gap-3">
+            <button
+              type="button"
+              onClick={() => setSheetOpen(false)}
+              className="pressable h-11 flex-1 rounded-xl border border-[var(--border)] text-sm font-medium"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => void handleAdd()}
+              className="pressable h-11 flex-1 rounded-xl bg-[var(--primary)] text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {submitting ? "添加中…" : "添加"}
+            </button>
           </div>
-        </div>
-      ) : null}
+        }
+      >
+        <textarea
+          autoFocus
+          value={bulkText}
+          onChange={(e) => setBulkText(e.target.value)}
+          rows={6}
+          placeholder={"番茄炒蛋\n想喝热汤\n蒜蓉西兰花"}
+          className="mt-3 w-full resize-none rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-3 text-base leading-relaxed outline-none focus:border-[var(--primary)]"
+        />
+      </BottomSheet>
 
       <ConfirmDialog
         open={Boolean(deleteId)}
